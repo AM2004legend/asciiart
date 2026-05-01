@@ -3,7 +3,7 @@ import { useMediaStream } from '../hooks/useMediaStream';
 import { useAsciiEngine } from '../hooks/useAsciiEngine';
 
 const AsciiCanvas = forwardRef(({ options }, ref) => {
-  const { videoRef, imageRef, mediaType, mediaSrc, streamActive, error, startCamera, stopCamera, handleFileUpload } = useMediaStream();
+  const { videoRef, imageRef, mediaType, mediaSrc, streamActive, error, facingMode, startCamera, stopCamera, handleFileUpload } = useMediaStream();
   
   // We use a ref to hold options so the engine doesn't restart on every change
   const optionsRef = React.useRef(options);
@@ -26,6 +26,12 @@ const AsciiCanvas = forwardRef(({ options }, ref) => {
           startEngine();
         });
       }
+    },
+    flipCamera: () => {
+      const newMode = facingMode === 'user' ? 'environment' : 'user';
+      startCamera(newMode).then(() => {
+        startEngine();
+      });
     },
     handleFileUpload: (file) => {
       handleFileUpload(file);

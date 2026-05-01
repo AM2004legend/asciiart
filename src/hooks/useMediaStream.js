@@ -5,35 +5,9 @@ export function useMediaStream() {
   const [mediaType, setMediaType] = useState('video'); // 'video' or 'image'
   const [mediaSrc, setMediaSrc] = useState(null);
   const [error, setError] = useState(null);
+  const [facingMode, setFacingMode] = useState('user');
   const videoRef = useRef(null);
   const imageRef = useRef(null);
-
-  const startCamera = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          facingMode: 'user'
-        },
-        audio: false
-      });
-      
-      
-      if (videoRef.current) {
-        setMediaType('video');
-        setMediaSrc(null); // Clear object URL if any
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setStreamActive(true);
-        setError(null);
-      }
-    } catch (err) {
-      console.error("Error accessing camera:", err);
-      setError("Could not access camera. Please check permissions.");
-      setStreamActive(false);
-    }
-  }, []);
 
   const stopCamera = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
@@ -43,6 +17,37 @@ export function useMediaStream() {
     }
     setStreamActive(false);
   }, []);
+
+  const startCamera = useCallback(async (mode = facingMode) => {
+    stopCamera();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: mode
+        },
+        audio: false
+      });
+      
+      setFacingMode(mode);
+      if (videoRef.current) {
+        setMediaType('video');
+        setMediaSrc(null); // Clear object URL if any
+        videoRef.current.srcObject = stream;
+        const playPromise = videoRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => console.error("Video play error:", e));
+        }
+        setStreamActive(true);
+        setError(null);
+      }
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      setError("Could not access camera. Please check permissions.");
+      setStreamActive(false);
+    }
+  }, [stopCamera, facingMode]);
 
   const handleFileUpload = useCallback((file) => {
     stopCamera();
@@ -81,6 +86,7 @@ export function useMediaStream() {
     mediaSrc,
     streamActive,
     error,
+    facingMode,
     startCamera,
     stopCamera,
     handleFileUpload

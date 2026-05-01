@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { motion } from 'framer-motion';
 
 const ControlPanel = ({ options, setOptions, engineRef }) => {
   const fileInputRef = useRef(null);
@@ -44,6 +45,12 @@ const ControlPanel = ({ options, setOptions, engineRef }) => {
     }
   };
 
+  const flipCamera = () => {
+    if (engineRef.current && engineRef.current.flipCamera) {
+      engineRef.current.flipCamera();
+    }
+  };
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && engineRef.current) {
@@ -52,7 +59,12 @@ const ControlPanel = ({ options, setOptions, engineRef }) => {
   };
 
   return (
-    <div className="control-panel-wrapper glass-panel">
+    <motion.div 
+      className="control-panel-wrapper glass-panel"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
+    >
       <div className="panel-header">
         <h1>ASSC-art-11</h1>
         <p>Aesthetic ASCII Engine</p>
@@ -152,11 +164,14 @@ const ControlPanel = ({ options, setOptions, engineRef }) => {
           onChange={handleFileChange}
         />
         <button onClick={() => fileInputRef.current.click()}>Upload Image / Video</button>
-        <button onClick={toggleCamera}>Toggle Camera</button>
+        <div className="flex-row gap-2 w-full" style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+          <button style={{ flex: 1 }} onClick={toggleCamera}>Toggle Camera</button>
+          <button style={{ flex: 1 }} onClick={flipCamera}>Flip Camera</button>
+        </div>
         <button className="primary" onClick={handleExport}>Download PNG</button>
         <button onClick={handleExportText}>Download Text</button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
