@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Salesforce CLI cache written by an editor extension
+.sf/
